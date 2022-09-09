@@ -63,6 +63,11 @@ class ResponsiveDatatable extends StatefulWidget {
   /// allow to styling the selected data row
   final TextStyle? selectedTextStyle;
 
+  ///  `getRowDecoration`
+  ///
+  /// allow styling of any row based on its content
+  final BoxDecoration Function(Map<String, dynamic> value)? getRowDecoration;
+
   const ResponsiveDatatable({
     Key? key,
     this.showSelect = false,
@@ -98,6 +103,7 @@ class ResponsiveDatatable extends StatefulWidget {
     this.headerTextStyle,
     this.rowTextStyle,
     this.selectedTextStyle,
+    this.getRowDecoration,
   }) : super(key: key);
 
   @override
@@ -156,9 +162,10 @@ class _ResponsiveDatatableState extends State<ResponsiveDatatable> {
   List<Widget> mobileList() {
     final _decoration = BoxDecoration(
         border: Border(bottom: BorderSide(color: Colors.grey[300]!, width: 1)));
-    final _rowDecoration = widget.rowDecoration ?? _decoration;
+    BoxDecoration _rowDecoration = widget.rowDecoration ?? _decoration;
     final _selectedDecoration = widget.selectedDecoration ?? _decoration;
     return widget.source!.map((data) {
+      _rowDecoration = widget.getRowDecoration?.call(data) ?? _rowDecoration;
       return InkWell(
         onTap: () => widget.onTabRow?.call(data),
         child: Container(
