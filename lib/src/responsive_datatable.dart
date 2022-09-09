@@ -323,7 +323,10 @@ class _ResponsiveDatatableState extends State<ResponsiveDatatable> {
             onTap: () {
               widget.onTabRow?.call(data);
               setState(() {
-                widget.expanded![index] = !widget.expanded![index];
+                // check if expanded list is provided
+                if ((widget.expanded?.length ?? -1) >= index) {
+                  widget.expanded![index] = !widget.expanded![index];
+                }
               });
             },
             child: Container(
