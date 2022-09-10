@@ -319,11 +319,12 @@ class _ResponsiveDatatableState extends State<ResponsiveDatatable> {
   List<Widget> desktopList() {
     final _decoration = BoxDecoration(
         border: Border(bottom: BorderSide(color: Colors.grey[300]!, width: 1)));
-    final _rowDecoration = widget.rowDecoration ?? _decoration;
+    BoxDecoration _rowDecoration = widget.rowDecoration ?? _decoration;
     final _selectedDecoration = widget.selectedDecoration ?? _decoration;
     List<Widget> widgets = [];
     for (var index = 0; index < widget.source!.length; index++) {
       final data = widget.source![index];
+      _rowDecoration = widget.getRowDecoration?.call(data) ?? _rowDecoration;
       widgets.add(Column(
         children: [
           InkWell(
