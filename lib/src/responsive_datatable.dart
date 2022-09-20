@@ -1,6 +1,7 @@
 import 'package:adaptivex/adaptivex.dart';
 import 'package:flutter/material.dart';
 import 'datatable_header.dart';
+import 'package:universal_io/io.dart';
 
 class ResponsiveDatatable extends StatefulWidget {
   final bool showSelect;
@@ -111,6 +112,11 @@ class ResponsiveDatatable extends StatefulWidget {
 }
 
 class _ResponsiveDatatableState extends State<ResponsiveDatatable> {
+  // to be imporved by screen size ?
+  bool isMobile() {
+    return Platform.isAndroid || Platform.isIOS;
+  }
+
   Widget mobileHeader() {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -198,7 +204,9 @@ class _ResponsiveDatatableState extends State<ResponsiveDatatable> {
                     .toList()
                     .map(
                       (header) => Container(
-                        padding: const EdgeInsets.all(11),
+                        padding: isMobile()
+                            ? const EdgeInsets.all(6)
+                            : const EdgeInsets.all(11),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
@@ -288,7 +296,9 @@ class _ResponsiveDatatableState extends State<ResponsiveDatatable> {
                       child: header.headerBuilder != null
                           ? header.headerBuilder!(header.value)
                           : Container(
-                              padding: const EdgeInsets.all(11),
+                              padding: isMobile()
+                                  ? const EdgeInsets.all(6)
+                                  : const EdgeInsets.all(11),
                               alignment: headerAlignSwitch(header.textAlign),
                               child: Wrap(
                                 crossAxisAlignment: WrapCrossAlignment.center,
@@ -332,13 +342,21 @@ class _ResponsiveDatatableState extends State<ResponsiveDatatable> {
               widget.onTabRow?.call(data);
               setState(() {
                 // check if expanded list is provided
-                if ((widget.expanded?.length ?? -1) >= index) {
+                // and has non zero size
+                // and matches list of rows
+                if ((widget.expanded != null) &&
+                    ((widget.expanded?.length ?? -1) > 0) &&
+                    ((widget.expanded?.length ?? -1) >= index)) {
                   widget.expanded![index] = !widget.expanded![index];
                 }
               });
             },
             child: Container(
-              padding: EdgeInsets.all(widget.showSelect ? 0 : 11),
+              padding: widget.showSelect
+                  ? const EdgeInsets.all(0)
+                  : (isMobile()
+                      ? const EdgeInsets.all(6)
+                      : const EdgeInsets.all(11)),
 
               /// TODO:
               decoration: widget.selecteds!.contains(data)
