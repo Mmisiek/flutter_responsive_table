@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:adaptivex/adaptivex.dart';
 import 'package:flutter/material.dart';
 import 'datatable_header.dart';
@@ -69,6 +71,10 @@ class ResponsiveDatatable extends StatefulWidget {
   /// allow styling of any row based on its content
   final BoxDecoration Function(Map<String, dynamic> value)? getRowDecoration;
 
+  ///  getMoreData
+  ///
+  final Function(int index)? getMoreData;
+
   const ResponsiveDatatable({
     Key? key,
     this.showSelect = false,
@@ -105,6 +111,7 @@ class ResponsiveDatatable extends StatefulWidget {
     this.rowTextStyle,
     this.selectedTextStyle,
     this.getRowDecoration,
+    this.getMoreData,
   }) : super(key: key);
 
   @override
@@ -115,6 +122,23 @@ class _ResponsiveDatatableState extends State<ResponsiveDatatable> {
   // to be imporved by screen size ?
   bool isMobile() {
     return Platform.isAndroid || Platform.isIOS;
+  }
+
+  static int page = 0;
+  // add scroll controller to request more dat ain lazy way
+  ScrollController scrollController = ScrollController();
+
+  @override
+  void initState() {
+    scrollController.addListener(() {
+      if (scrollController.position.pixels ==
+          scrollController.position.maxScrollExtent) {
+        if (widget.getMoreData != null) {
+          widget.getMoreData?.call(widget.source!.length);
+        }
+      }
+    });
+    super.initState();
   }
 
   Widget mobileHeader() {
@@ -183,7 +207,7 @@ class _ResponsiveDatatableState extends State<ResponsiveDatatable> {
             mainAxisSize: MainAxisSize.min,
             children: [
               Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
                   const Spacer(),
                   if (widget.showSelect && widget.selecteds != null)
@@ -208,7 +232,7 @@ class _ResponsiveDatatableState extends State<ResponsiveDatatable> {
                             ? const EdgeInsets.all(6)
                             : const EdgeInsets.all(11),
                         child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          mainAxisAlignment: MainAxisAlignment.spaceAround,
                           children: [
                             header.headerBuilder != null
                                 ? header.headerBuilder!(header.value)
@@ -355,8 +379,8 @@ class _ResponsiveDatatableState extends State<ResponsiveDatatable> {
               padding: widget.showSelect
                   ? const EdgeInsets.all(0)
                   : (isMobile()
-                      ? const EdgeInsets.all(6)
-                      : const EdgeInsets.all(11)),
+                      ? const EdgeInsets.all(4)
+                      : const EdgeInsets.all(9)),
 
               /// TODO:
               decoration: widget.selecteds!.contains(data)
@@ -464,6 +488,7 @@ class _ResponsiveDatatableState extends State<ResponsiveDatatable> {
                       /// mobileList
                       ...mobileList(),
                     ],
+                    controller: scrollController,
                   ),
                 ),
 
@@ -506,7 +531,11 @@ class _ResponsiveDatatableState extends State<ResponsiveDatatable> {
               if (!widget.autoHeight)
                 // desktopList
                 if (widget.source != null && widget.source!.isNotEmpty)
-                  Expanded(child: ListView(children: desktopList())),
+                  Expanded(
+                      child: ListView(
+                    children: desktopList(),
+                    controller: scrollController,
+                  )),
 
               //footer
               if (widget.footers != null)
