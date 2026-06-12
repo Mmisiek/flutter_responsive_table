@@ -55,7 +55,7 @@ class _DataPageState extends State<DataPage> {
   bool _showSelect = true;
   var random = new Random();
 
-  List<Map<String, dynamic>> _generateData({int n: 100}) {
+  List<Map<String, dynamic>> _generateData({int n = 100}) {
     final List source = List.filled(n, Random.secure());
     List<Map<String, dynamic>> temps = [];
     var i = 1;
@@ -97,7 +97,7 @@ class _DataPageState extends State<DataPage> {
     });
   }
 
-  _resetData({start: 0}) async {
+  _resetData({start = 0}) async {
     setState(() => _isLoading = true);
     var _expandedLen =
         _total - start < _currentPerPage! ? _total - start : _currentPerPage;
